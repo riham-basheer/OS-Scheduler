@@ -7,16 +7,9 @@
 #include <sys/sem.h>
 #include <sys/msg.h>
 #include <sys/wait.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <signal.h>
-
-typedef short bool;
-#define true 1
-#define false 1
-
-#define SHKEY 300
-
+#include "def.h"
 
 ///==============================
 //don't mess with this variable//

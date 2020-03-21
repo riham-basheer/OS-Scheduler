@@ -1,22 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
+#include "def.h"
 #include <time.h>
 #define null 0
-
-struct processData
-{
-    int arrivaltime;
-    int priority;
-    int runningtime;
-    int id;
-};
+#include "processData.h"
 
 int main(int argc, char * argv[])
 {
     FILE * pFile;
-    pFile = fopen("processes.txt", "w");
+    pFile = fopen(PROCESSESFILE_NAME, "w");
     int no;
     struct processData pData;
+        printf("Please enter the number of processes you want to generate: ");
     printf("Please enter the number of processes you want to generate: ");
     scanf("%d", &no);
     srand(time(null));
@@ -34,4 +28,5 @@ int main(int argc, char * argv[])
         fprintf(pFile, "%d\t%d\t%d\t%d\n", pData.id, pData.arrivaltime, pData.runningtime, pData.priority);
     }
     fclose(pFile);
+
 }
