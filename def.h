@@ -2,6 +2,7 @@
 #define OS_SCHEDULER_DEF_H
 
 #include <stdlib.h>
+
 typedef short bool;
 #define true 1
 #define false 0
