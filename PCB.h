@@ -2,25 +2,24 @@
 #define OS_SCHEDULER_PCB_H
 #include "processData.h"
 #include <stdlib.h>
+#include <stdio.h>
 
-
-typedef struct processData
+typedef enum
 {
-    int arrivaltime;
-    int priority;
-    int runningtime;
-    int id; 
-} processData;
+    STOPPED,
+    STARTED,
+    RESUMED,
+    FINISHED
+} STATUS;
 
 typedef struct PCB
 {
     processData processStruct;
     int remainingTime;
     int startTime;
-    enum STATUS {STOPPED, STARTED, RESUMED, FINISHED};
+    STATUS status;
     int TA;
     int pid;
-}PCB;
+} PCB;
 
 #endif
-

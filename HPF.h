@@ -5,42 +5,8 @@
 #include "processData.h"
 #include "priorityQueue.h"
 #include "messageBox.h"
-#include "headers.h"
 #include <signal.h>
 #include <stdio.h>
-
-
-void HPF()
-{
-    priorityQueue *queue = new_PrioriyQueue();
-    connectToMessageBox();
-    processData process;
-    int recValue = recvMessage(&process);
-    while (!priority_isEmpty(queue) || recValue != 1)
-    {
-        while (recValue== 0)
-        {
-            printf("\nReceived a process now. It's # %d\n", process.id);
-            PCB currProcess = create_PCB(&process);
-            priority_enqueue(queue, &currProcess);
-            recValue = recvMessage(&process);
-        }
-
-        PCB processToRun;
-        priority_dequeue(queue, &processToRun);
-        int pid_process = create_process(processToRun.remainingTime);
-        processToRun.status = STARTED;
-        printf("At time %d process started arr %d total %d remain %d wait %d\n",
-               getClk(), processToRun.processStruct.id, processToRun.processStruct.arrivaltime,
-               processToRun.processStruct.runningtime, processToRun.remainingTime, 0);
-        processToRun.startTime = getClk();
-        int STATUS;
-        waitpid(pid_process, &STATUS, 0);
-        processToRun.TA = getClk() - processToRun.startTime;
-        processToRun.remainingTime = 0;
-        processToRun.status = FINISHED;
-    }
-}
 
 int create_process(int runTime)
 {
@@ -73,6 +39,51 @@ PCB create_PCB(processData *process)
     pcb.remainingTime = process->runningtime;
     pcb.status = STOPPED;
     return pcb;
+}
+
+void HPF()
+{
+    priorityQueue *queue = new_PrioriyQueue();
+    connectToMessageBox();
+    processData process;
+    PCB currProcess, processToRun;
+    int recValue = recvMessage(&process);
+    bool noMoreProcesses = (recValue == 1);
+
+    while (!priority_isEmpty(queue->head) || !noMoreProcesses)
+    {
+
+        while (recValue == 0)
+        {
+            printf("\nReceived a process now. It's # %d\n", process.id);
+            currProcess = create_PCB(&process);
+            priority_enqueue(queue, &currProcess);
+            recValue = recvMessage(&process);
+            if (recValue == 1)
+            noMoreProcesses = true;
+        }
+        if (priority_dequeue(queue, &processToRun))
+        {
+            int pid_process = create_process(processToRun.remainingTime);
+            processToRun.status = STARTED;
+            printf("At time %d process %d started arr %d total %d remain %d wait %d\n",
+                   getClk(), processToRun.processStruct.id, processToRun.processStruct.arrivaltime,
+                   processToRun.processStruct.runningtime, processToRun.remainingTime,
+                   getClk() - processToRun.processStruct.arrivaltime);
+            processToRun.startTime = getClk();
+            int STATUS;
+            waitpid(pid_process, &STATUS, 0);
+            processToRun.TA = getClk() - processToRun.startTime;
+            processToRun.remainingTime = 0;
+            processToRun.status = FINISHED;
+            printf("At time %d process %d finished arr %d total %d remain %d wait %d finished at %d\n",
+                   getClk(), processToRun.processStruct.id, processToRun.processStruct.arrivaltime,
+                   processToRun.processStruct.runningtime, processToRun.remainingTime,
+                   getClk() - processToRun.processStruct.arrivaltime, processToRun.TA + processToRun.startTime);
+        }
+        recValue = recvMessage(&process);
+    }
+    printf("\n********************************\n");
 }
 
 #endif

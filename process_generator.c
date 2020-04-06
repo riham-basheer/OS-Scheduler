@@ -1,6 +1,6 @@
 #include "headers.h"
 #include "processQueue.c"
-#include "messageBox.c"
+#include "messageBox.h"
 
 void clearResources(int);
 bool readFromFile(processQueue *queue);
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     sprintf(quantum_string, "%d", quantum);
     int pid_schd = createScheduler(numAlgo_string, quantum_string);
     createClock();
-
+    
     // 4. Use this function after creating the clock process to initialize clock
     initClk();
     /*Now, we'll send each process at its arrival time to the scheduler
@@ -54,8 +54,7 @@ int main(int argc, char *argv[])
         currTime = getClk();
         if (currTime == pData->arrivaltime)
         {
-            printf("\nA process is sent at time %d\n", currTime);
-            if (!sendMessage(pData))
+            if (!sendMessage(*pData))
             {
                 perror("\nProcess was not sent to the schedule. \n");
                 exit(9);
@@ -114,7 +113,7 @@ int createScheduler(char str1[64], char str2[64])
     else if (pid_schd == 0)
     {
         //initiation :: //remaining time parameter
-        if (execl(SCHEDULER_NAME, SCHEDULER_NAME, str1, str2, NULL) == -1)
+        if (execl("scheduler.out", "scheduler.out", str1, str2, NULL) == -1)
         {
             perror("\nCouldn't create the scheduler.\n");
             exit(10);
@@ -135,7 +134,7 @@ void createClock()
     else if (pid_clk == 0)
     {
         //initialization
-        if (execl(CLOCK_NAME, CLOCK_NAME, NULL) == -1)
+        if (execl("clk.out", "clk.out", NULL) == -1)
         {
             printf("\nCouldn't create the clock..\n");
             exit(10);

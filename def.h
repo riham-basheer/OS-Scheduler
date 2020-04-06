@@ -8,8 +8,6 @@ typedef short bool;
 #define false 0
 
 #define PROCESSESFILE_NAME "processes.txt"
-#define SCHEDULER_NAME "scheduler.out"
-#define CLOCK_NAME "clk.out"
 
 #define SHKEY 300
 

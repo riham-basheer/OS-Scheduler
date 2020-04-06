@@ -1,7 +1,9 @@
 #include "PCB.h"
 #include "stdio.h"
-#include "def.h"
 
+typedef short bool;
+#define true 1
+#define false 0
 
 // -------- For HPF -----------//
 typedef struct priorityNode priorityNode;
@@ -23,7 +25,7 @@ struct priorityQueue
 priorityQueue *new_PrioriyQueue()
 {
     priorityQueue *queue = (priorityQueue *)malloc(sizeof(priorityQueue));
-    queue->head = NULL; 
+    queue->head = NULL;
 };
 
 bool priority_isEmpty(priorityNode *head)
@@ -42,7 +44,6 @@ bool priority_enqueue(priorityQueue *queue, PCB *newNode)
     pNew->next = NULL;
     if (priority_isEmpty(queue->head))
     {
-        printf("\n I'm in\n");
         pNew->next = NULL;
         queue->head = pNew;
         return true;
@@ -55,13 +56,17 @@ bool priority_enqueue(priorityQueue *queue, PCB *newNode)
     else
     {
         pTemp = queue->head;
-        while (pTemp->next != NULL && pTemp->next->priority <= pNew->priority)
+        while (pTemp->next != NULL)
         {
-            pNew->next = pTemp->next;
-            pTemp->next = pNew;
+            if (pTemp->next->priority > pNew->priority)
+            {
+                pNew->next = pTemp->next;
+                pTemp->next = pNew;
+                return true;
+            }
             pTemp = pTemp->next;
         }
-        if(pTemp->priority <= pNew->priority)
+        if (pTemp->priority <= pNew->priority)
         {
             pNew->next = NULL;
             pTemp->next = pNew;
@@ -79,6 +84,7 @@ bool priority_dequeue(priorityQueue *queue, PCB *pcb)
     else
     {
         *pcb = queue->head->data;
+        printf("\nI'm priority # %d\n", queue->head->data.processStruct.priority);
         queue->head = queue->head->next;
         return true;
     }
