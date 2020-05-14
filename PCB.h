@@ -1,9 +1,6 @@
 #ifndef OS_SCHEDULER_PCB_H
 #define OS_SCHEDULER_PCB_H
 #include "processData.h"
-#include <stdlib.h>
-#include <stdio.h>
-
 typedef enum
 {
     STOPPED,

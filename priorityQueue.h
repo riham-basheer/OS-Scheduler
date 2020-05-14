@@ -1,11 +1,13 @@
+#ifndef OS_SCHEDULER_PRIORITYQUEUE_H
+# define OS_SCHEDULER_PRIORITYQUEUE_H
+
 #include "PCB.h"
-#include "stdio.h"
 
 typedef short bool;
 #define true 1
 #define false 0
 
-// -------- For HPF -----------//
+// -------- For HPF ----------- //
 typedef struct priorityNode priorityNode;
 struct priorityNode
 {
@@ -20,7 +22,7 @@ struct priorityQueue
     priorityNode *head;
 };
 
-// ------------------ //
+// ---------------------------- //
 
 priorityQueue *new_PrioriyQueue()
 {
@@ -84,7 +86,6 @@ bool priority_dequeue(priorityQueue *queue, PCB *pcb)
     else
     {
         *pcb = queue->head->data;
-        printf("\nI'm priority # %d\n", queue->head->data.processStruct.priority);
         queue->head = queue->head->next;
         return true;
     }
@@ -94,3 +95,5 @@ void priority_clear(priorityNode *head)
 {
     free(head);
 };
+
+#endif

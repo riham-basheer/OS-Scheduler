@@ -2,15 +2,17 @@
 #define OS_SCHEDULER_MESSAGEBOX_H
 #include <sys/msg.h>
 #include <signal.h>
+#include <stdio.h>
 #include "processData.h"
 #include "def.h"
-/* Message Box: controls all that is related to the message queue used to send
+
+/* Message Box: controls all what is related to the message queue used to send
 processes from the process generator to the scheduler. */
 #define MESSAGEBOX_KEY 12345
 #define PERMISSIONS 0644
-#define EOT_TYPE 9L
+#define EOT_TYPE 5L
 
-int qID; //
+int qID;
 
 struct messageBuffer
 {
@@ -24,20 +26,21 @@ void newMessageBox()
 
     qID = msgget(MESSAGEBOX_KEY, IPC_CREAT | PERMISSIONS);
     if (qID == -1)
-        perror("Message Box created successfully.\n");
-}
+        perror("Message Box creation\n");
+};
 
 /* Connects to the created message queue in the receiving end.*/
 void connectToMessageBox()
 {
-    qID = msgget(MESSAGEBOX_KEY, 0666);
+    qID = msgget(MESSAGEBOX_KEY, PERMISSIONS);
     if (qID == -1)
     {
-        kill(getpgrp(), SIGINT);
+        printf("\nScheduler: Messagebox not connected.\n");
+        exit(-1);
     }
-}
+};
 
-/* send */
+/* send process. */
 bool sendMessage(processData pData)
 {
     struct messageBuffer sms;
@@ -45,22 +48,23 @@ bool sendMessage(processData pData)
     sms.data = pData;
 
     int val = msgsnd(qID, &sms, sizeof(sms.data), !IPC_NOWAIT);
-    if (val == 0)
-        return (val == 0);
-}
+    return (val == 0);
+};
 
+/* send EOT: no more processes to schedule. */
 void sendEOT()
 {
     struct messageBuffer eot;
     eot.mtype = EOT_TYPE;
-    msgsnd(qID, &eot, sizeof(eot.data) - sizeof(long), !IPC_NOWAIT);
-}
+    msgsnd(qID, &eot, sizeof(eot.data), !IPC_NOWAIT);
+};
 
+/* Remove message box. */
 void deleteMessageBox()
 {
     msgctl(qID, IPC_RMID, NULL);
     exit(0);
-}
+};
 
 int recvMessage(processData *pData)
 {
@@ -72,10 +76,10 @@ int recvMessage(processData *pData)
         return -1;
     if (sms.mtype == EOT_TYPE)
     {
-        printf("\nOK WE SHOULD LEAVE\n");
+        printf("\nNo more processes.\n");
         return 1;
     }
     return 0;
-}
+};
 
 #endif

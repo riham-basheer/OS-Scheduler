@@ -1,14 +1,15 @@
 #include <stdio.h> //if you don't use scanf/printf change this include
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/file.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
 #include <sys/msg.h>
+#include <signal.h>
+#include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <signal.h>
+#include <errno.h>
 #include "def.h"
 
 ///==============================
@@ -52,8 +53,6 @@ void destroyClk(bool terminateAll)
     shmdt(shmaddr);
     if (terminateAll)
     {
-        int x = killpg(getpgrp(), SIGINT);
-        if (x == 0)
-            printf("\nend\n");
+        killpg(getpgrp(), SIGINT);
     }
 }

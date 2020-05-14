@@ -1,5 +1,5 @@
-#include "headers.h"
 #include <time.h>
+#include "headers.h"
 #include <signal.h>
 
 /* Modify this file as needed*/
@@ -22,7 +22,6 @@ int main(int agrc, char *argv[])
     clock_t startTime, currentTime;
     currentTime = 0;
     remainingTime = (clock_t)atoi(argv[1]);
-        printf("\nMy remaining time is %d.\n", (int)remainingTime);
     while (remainingTime > currentTime)
     {
         startTime = clock();

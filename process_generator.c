@@ -1,15 +1,16 @@
 #include "headers.h"
-#include "processQueue.c"
 #include "messageBox.h"
+#include "processQueue.h"
 
 void clearResources(int);
 bool readFromFile(processQueue *queue);
 int createScheduler(char str1[64], char str2[64]);
-void createClock();
+int createClock();
 
 int main(int argc, char *argv[])
 {
     signal(SIGINT, clearResources);
+    newMessageBox();
     // TODO Initialization
     // 1. Read the input files.
     processQueue *pQueue = new_processQueue();
@@ -40,13 +41,12 @@ int main(int argc, char *argv[])
     sprintf(numAlgo_string, "%d", numAlgo);
     sprintf(quantum_string, "%d", quantum);
     int pid_schd = createScheduler(numAlgo_string, quantum_string);
-    createClock();
-    
+    int pid_clk = createClock();
+
     // 4. Use this function after creating the clock process to initialize clock
     initClk();
     /*Now, we'll send each process at its arrival time to the scheduler
     via a message box.*/
-    newMessageBox();
     processData *pData = dequeue(pQueue);
     int currTime = getClk();
     while (pData != NULL) // As long as there are processes in the processQueue
@@ -69,7 +69,8 @@ int main(int argc, char *argv[])
     int STATUS;
     waitpid(pid_schd, &STATUS, 0);
     clear(pQueue);
-    clearResources(0);
+    destroyClk(true); // End of simulation
+    return 0;
 }
 
 /* Reads the processes from the file created by the test_generator.
@@ -100,9 +101,7 @@ void clearResources(int signum)
     //TODO Clears all resources in case of interruption
     printf("\nClearing resources ... \n");
     deleteMessageBox();
-    destroyClk(true);
-    exit(0);
-}
+};
 
 int createScheduler(char str1[64], char str2[64])
 {
@@ -125,7 +124,7 @@ int createScheduler(char str1[64], char str2[64])
     }
 }
 
-void createClock()
+int createClock()
 {
     int pid_clk = fork();
     if (pid_clk == -1)
@@ -142,6 +141,6 @@ void createClock()
     }
     else
     {
-        return;
+        return pid_clk;
     }
 }
