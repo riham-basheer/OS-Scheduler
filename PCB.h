@@ -18,9 +18,12 @@ typedef struct PCB
     int TA;
     int pid;
     int nquanta_taken;
+<<<<<<< HEAD
     int totalwaitTime;
     int wait_at_start;
     int finishTime;
+=======
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 } PCB;
 
 #endif

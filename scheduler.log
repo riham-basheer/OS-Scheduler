@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 At time 4 process 1 started arr 4 total runtime 1 remain 1 wait 0
 At time 5 process 1 finished arr 4 total runtime 1 remain 0 wait 0 TA 1 WTA 1.00
 At time 5 process 2 started arr 4 total runtime 3 remain 3 wait 1
 At time 8 process 2 finished arr 4 total runtime 3 remain 0 wait 1 TA 4 WTA 1.00
+=======
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b

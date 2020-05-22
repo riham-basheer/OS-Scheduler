@@ -15,6 +15,7 @@
 
 
 int get_process_situation(PCB process, int quantum){
+<<<<<<< HEAD
 	/* categorize process into types according to their remaining time and whether or not this 
 	is their first time entering the processor (first quantum)*/
 
@@ -25,10 +26,20 @@ int get_process_situation(PCB process, int quantum){
 	if (!first && done) return 2; // not first & remainingtime < quantum
 	if (first && !done) return 3; // first quantum & remainingtime > quantum
 	if (!first && !done) return 4; // not first & remainingtime < quantum
+=======
+	bool first= (process.nquanta_taken == 0);
+	bool done = (process.remainingTime <= quantum);
+
+	if (first && done){return 1;}
+	if (!first && done) return 2;
+	if (first && !done) return 3;
+	if (!first && !done) return 4;
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 
 }
 
 void type_1_process(PCB* processToRun){
+<<<<<<< HEAD
 		/* handling a process whose entire runtime =< quantum, 
 		just fork, exec and wait for it to finish 
 		*/
@@ -97,12 +108,62 @@ void type_2_process(PCB* processToRun){
 			processToRun->totalwaitTime);
 
 	printThis(&(*processToRun));
+=======
+
+		int pid_process = create_process(processToRun->remainingTime);
+		processToRun->pid= pid_process;
+		processToRun->status = STARTED;
+		printf("At time %d process number %d started, arrivaltime= %d, totalruntime= %d remaining= %d wait= %d\n",
+				getClk(), processToRun->processStruct.id, processToRun->processStruct.arrivaltime,
+				processToRun->processStruct.runningtime, processToRun->remainingTime,
+				getClk() - processToRun->processStruct.arrivaltime);
+
+		processToRun->startTime = getClk();
+
+		//////print
+		//printThis(&processToRun);
+
+		int STATUS;
+		waitpid(pid_process, &STATUS, 0);
+		processToRun->TA = getClk() - processToRun->startTime;
+		processToRun->remainingTime = 0;
+		processToRun->status = FINISHED;
+		printf("At time %d process %d finished arr %d total %d remain %d wait %d finished at %d\n",
+				getClk(), processToRun->processStruct.id, processToRun->processStruct.arrivaltime,
+				processToRun->processStruct.runningtime, processToRun->remainingTime,
+				getClk() - processToRun->processStruct.arrivaltime, processToRun->TA + processToRun->startTime);
+		//printThis(&processToRun);
+}
+
+void type_2_process(PCB* processToRun){
+
+
+	int pid_process= processToRun->pid;
+	
+	kill(pid_process,SIGCONT); //coninue preempted signal
+
+	int STATUS;
+		waitpid(pid_process, &STATUS,0);
+		printf("\nexit status = %d\n ", STATUS);
+		processToRun->TA = getClk() - processToRun->startTime;
+		processToRun->remainingTime = 0;
+		processToRun->status = FINISHED;
+	printf("At time %d process %d finished, arrvaltime= %d runtime=%d remain %d waittime= %d finished at %d\n",
+				getClk(), processToRun->processStruct.id, processToRun->processStruct.arrivaltime,
+				processToRun->processStruct.runningtime, processToRun->remainingTime,
+				getClk() - processToRun->processStruct.runningtime, processToRun->TA + processToRun->startTime);
+	//printThis(&processToRun);
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 
 }
 
 int give_quantum_first_time(int quantum, int remaining_time){
+<<<<<<< HEAD
 	/* fork and exec (create) a process and give it 1 quantum to execute */
 
+=======
+	
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 	int pid_schd = fork();
 	if (pid_schd == -1) {perror("\nmamamamamam\n");}
 	
@@ -125,17 +186,28 @@ int give_quantum_first_time(int quantum, int remaining_time){
 }
 
 void give_quantum(int pid,int quantum){
+<<<<<<< HEAD
 	/*continue pre-empted process give it a quantum, then stop it*/
+=======
+	
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 	
 	kill(pid, SIGCONT);
 	sleep(quantum);
 	kill(pid, SIGSTOP);
 
+<<<<<<< HEAD
+=======
+	
+
+
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 }
 
 
 
 void RR ( int quantum) {
+<<<<<<< HEAD
 	//setting up message connection and output file
 	open_outputFile();
 	connectToMessageBox();
@@ -157,6 +229,29 @@ void RR ( int quantum) {
 		//following while: to listen for any more incoming processes and enqueue them
 		while (recValue == 0)
 		{ 
+=======
+	open_outputFile();
+	//deb
+	//PCB* P= (PCB*)malloc(sizeof(PCB));
+	//processQueue *queue= new_processQueue(); // ready queue
+
+	PCBqueue *queue= new_PCBqueue(); // ready queue
+	queue->head = NULL;
+	connectToMessageBox();
+	processData process;
+	
+	PCB currProcess, processToRun;
+	int recValue = recvMessage(&process);
+	bool noMoreProcesses = (recValue == 1);
+	int process_situation;
+	
+	
+
+	while (!PCB_isEmpty(queue->head) || !noMoreProcesses)
+	{	
+		while (recValue == 0)
+		{
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 			printf("\nReceived a process now. It's # %d\n", process.id);
 			currProcess = create_PCB(&process);
 			
@@ -170,8 +265,12 @@ void RR ( int quantum) {
             noMoreProcesses = true;
 		}
    
+<<<<<<< HEAD
 
 		//following while: to enqueue processes from the ready queue and handle them
+=======
+	
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 		while (!PCB_isEmpty(queue->head))
 		{	
 			
@@ -189,6 +288,7 @@ void RR ( int quantum) {
 			else if (process_situation==2){type_2_process(&processToRun);}
 
 			else if (process_situation==3){
+<<<<<<< HEAD
 				//store start data
 				processToRun.startTime = getClk();
 				processToRun.wait_at_start= processToRun.startTime-processToRun.processStruct.arrivaltime;
@@ -206,13 +306,31 @@ void RR ( int quantum) {
 				printThis(&processToRun);
 				
 				//store pause info
+=======
+				
+				processToRun.status = STARTED;
+					processToRun.startTime = getClk();
+				printf("At time %d process number %d started, arrivaltime= %d, totalruntime= %d remaining= %d wait= %d\n",
+				getClk(), processToRun.processStruct.id, processToRun.processStruct.arrivaltime,
+				processToRun.processStruct.runningtime, processToRun.remainingTime,
+				getClk() - processToRun.processStruct.arrivaltime);
+
+				//printThis(&processToRun);
+
+				int pid_process = give_quantum_first_time(quantum, processToRun.remainingTime);
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 				processToRun.pid= pid_process;
 				processToRun.status = STOPPED;
 				processToRun.remainingTime =processToRun.remainingTime- quantum;
 				processToRun.nquanta_taken++ ;
+<<<<<<< HEAD
 
 				//re-enqueue
 				PCB_enqueue(queue, &processToRun); 
+=======
+				PCB_enqueue(queue, &processToRun); 
+				//printf("enqueue success?? = %d",enq);
+>>>>>>> ba7c01aca13ca5118f115c619242da6efed58c5b
 			
 			
 			}
