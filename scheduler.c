@@ -1,6 +1,7 @@
 #define _POSIX_SOURCE
 #include "headers.h"
 #include "HPF.h"
+#include "RR.h"
 #include "messageBox.h"
 
 int main(int argc, char *argv[])
@@ -11,6 +12,7 @@ int main(int argc, char *argv[])
 
 	// Choosing Algorithm
 	int algoNum = (int)atoi(argv[1]);
+	int quantum;
 
 	switch (algoNum)
 	{
@@ -20,6 +22,8 @@ int main(int argc, char *argv[])
 	case 2:
 		break;
 	case 3:
+		quantum= (int) atoi(argv[2]);
+		RR(quantum);
 		break;
 	default:
 		printf("\nIncorrect Algorithm Number! Please try again.\n");

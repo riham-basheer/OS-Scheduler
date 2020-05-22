@@ -17,6 +17,7 @@ typedef struct PCB
     STATUS status;
     int TA;
     int pid;
+    int nquanta_taken;
 } PCB;
 
 #endif
