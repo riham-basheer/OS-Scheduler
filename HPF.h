@@ -67,10 +67,13 @@ void HPF()
             processToRun.pid = pid_process;
             processToRun.status = STARTED;
             processToRun.startTime = getClk();
+            processToRun.wait_at_start= processToRun.startTime-processToRun.processStruct.arrivaltime;
+            processToRun.totalwaitTime= processToRun.wait_at_start;
             printThis(&processToRun);
             int STATUS;
             waitpid(pid_process, &STATUS, 0);
             processToRun.status = FINISHED;
+            processToRun.finishTime= getClk();
             processToRun.TA = getClk() - processToRun.processStruct.arrivaltime;
             processToRun.remainingTime = 0;
             printThis(&processToRun);

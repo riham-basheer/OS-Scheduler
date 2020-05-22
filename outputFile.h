@@ -23,24 +23,29 @@ void open_outputFile()
 void printThis(PCB *currPCB)
 {
     int currTime = getClk();
-    int id, arrTime, runTime, remTime, WT, TA;
+    int id, arrTime, runTime, remTime, WT, TA,startTime,start_wait;
     id = currPCB->processStruct.id;
     arrTime = currPCB->processStruct.arrivaltime;
     runTime = currPCB->processStruct.runningtime;
     remTime = currPCB->remainingTime;
-    WT = currPCB->startTime - arrTime; // TODO: to be edited for RR
+    startTime= currPCB->startTime;
+    //WT = currPCB->startTime - arrTime; // TODO: to be edited for RR
+    WT= currPCB->totalwaitTime;
+    start_wait= currPCB->wait_at_start;
+
 
     switch (currPCB->status)
     {
     case STARTED:
-        fprintf(logFile_ptr, "At time %d process %d started arr %d total %d remain %d wait %d\n", currTime, id, arrTime, runTime, remTime, WT);
+        fprintf(logFile_ptr, "At time %d process %d started arr %d total runtime %d remain %d wait %d\n", startTime, id, arrTime, runTime, remTime, start_wait);
         break;
     case FINISHED:
+        currTime= currPCB->finishTime;
         TA = currPCB->TA;
         totalWT = totalWT + WT;
         double WTA = (double)(TA / runTime);
         totalWTA = totalWTA + WTA;
-        fprintf(logFile_ptr, "At time %d process %d finished arr %d total %d remain %d wait %d TA %d WTA %0.2f\n",
+        fprintf(logFile_ptr, "At time %d process %d finished arr %d total runtime %d remain %d wait %d TA %d WTA %0.2f\n",
                 currTime, id, arrTime, runTime, remTime, WT, TA, WTA);
         counter = counter + 1;
         break;
