@@ -11,6 +11,7 @@
 #include "messageBox.h"
 #include <signal.h>
 #include "outputFile.h"
+#include "memTree.h"
 
 
 
@@ -28,11 +29,13 @@ int get_process_situation(PCB process, int quantum){
 
 }
 
-void type_1_process(PCB* processToRun){
+void type_1_process(PCB* processToRun,node* root){
 		/* handling a process whose entire runtime =< quantum, 
 		just fork, exec and wait for it to finish 
 		*/
-
+		
+		//allocate memory
+		Allocate_memory(root, processToRun->processStruct.memory, processToRun->processStruct.id);
 		//execute process
 		int pid_process = create_process(processToRun->remainingTime);
 
@@ -69,9 +72,11 @@ void type_1_process(PCB* processToRun){
 				processToRun->totalwaitTime);
 
 		printThis(&(*processToRun));
+		//free memory
+		deallocate_process(root,processToRun->processStruct.id);
 }
 
-void type_2_process(PCB* processToRun){
+void type_2_process(PCB* processToRun,node* root){
 	/* handle a whose remaining time <= quantum, and is currently paused */
 
 	//coninue preempted process
@@ -99,6 +104,8 @@ void type_2_process(PCB* processToRun){
 
 	printThis(&(*processToRun));
 
+	//free memory
+	deallocate_process(root,processToRun->processStruct.id);
 }
 
 int give_quantum_first_time(int quantum, int remaining_time){
@@ -137,6 +144,14 @@ void give_quantum(int pid,int quantum){
 
 
 void RR ( int quantum) {
+
+	//setting up memory tree and opening memory log file
+	//create memory tree and open memory logfile
+    open_memory_log();
+	memTree* mem = new_memTree();
+	node* root;
+	root = mem->root;
+
 	//setting up message connection and output file
 	open_outputFile();
 	connectToMessageBox();
@@ -185,9 +200,9 @@ void RR ( int quantum) {
 			printf("\nprocess # %d in sitution= %d\n",processToRun.processStruct.id,process_situation);
 			//deb
 			
-			if (process_situation==1){ type_1_process(&processToRun);}
+			if (process_situation==1){ type_1_process(&processToRun,root);}
 
-			else if (process_situation==2){type_2_process(&processToRun);}
+			else if (process_situation==2){type_2_process(&processToRun,root);}
 
 			else if (process_situation==3){
 				//store start data
@@ -195,6 +210,9 @@ void RR ( int quantum) {
 				processToRun.wait_at_start= processToRun.startTime-processToRun.processStruct.arrivaltime;
 				processToRun.status = STARTED; //set status
 				
+				//allocate memory
+				Allocate_memory(root, processToRun.processStruct.memory,processToRun.processStruct.id);
+
 				// give quantum
 				int pid_process = give_quantum_first_time(quantum, processToRun.remainingTime);
 				
@@ -241,6 +259,8 @@ void RR ( int quantum) {
 	}
 	printPerf();
     close_oputputFile();
+	close_memlog_file();
+	clean_mem(root); // clean up the memory tree
     printf("\n************* EOS *************\n");
 	
 

@@ -1,3 +1,4 @@
+
 #ifndef OS_SCHEDULER_HPF_H
 #define OS_SCHEDULER_HPF_H
 
@@ -6,6 +7,7 @@
 #include "messageBox.h"
 #include "outputFile.h"
 #include "PCB.h"
+#include "memTree.h"
 
 int create_process(int runTime)
 {
@@ -33,6 +35,7 @@ PCB create_PCB(processData *process)
     PCB pcb;
     pcb.processStruct.arrivaltime = process->arrivaltime;
     pcb.processStruct.id = process->id;
+    pcb.processStruct.memory = process->memory;
     pcb.processStruct.priority = process->priority;
     pcb.processStruct.runningtime = process->runningtime;
     pcb.remainingTime = process->runningtime;
@@ -41,7 +44,13 @@ PCB create_PCB(processData *process)
 };
 
 void HPF()
-{
+{   
+    //create memory tree and open memory logfile
+    open_memory_log();
+	memTree* mem = new_memTree();
+	node* root;
+	root = mem->root;
+
     open_outputFile();
     priorityQueue *queue = new_PrioriyQueue();
     processData process;
@@ -61,7 +70,10 @@ void HPF()
                 noMoreProcesses = true;
         }
         if (priority_dequeue(queue, &processToRun))
-        {
+        {   
+            //allocate process in memory
+            Allocate_memory(root, processToRun.processStruct.memory ,processToRun.processStruct.id);
+
             // Creating process process
             int pid_process = create_process(processToRun.remainingTime);
             processToRun.pid = pid_process;
@@ -77,11 +89,14 @@ void HPF()
             processToRun.TA = getClk() - processToRun.processStruct.arrivaltime;
             processToRun.remainingTime = 0;
             printThis(&processToRun);
+            deallocate_process(root, processToRun.processStruct.id);
         }
         recValue = recvMessage(&process);
     }
     printPerf();
     close_oputputFile();
+    close_memlog_file();
+	clean_mem(root); // clean up the memory tree
     printf("\n************* EOS *************\n");
 };
 

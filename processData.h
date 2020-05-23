@@ -9,6 +9,7 @@ typedef struct processData
     int priority;
     int runningtime;
     int id;
+    int memory;
 }processData;
 
 #endif 

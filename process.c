@@ -44,5 +44,5 @@ void stop_message(int sig)
 }
 void cont_message(int sig)
 {
-    printf("\nI am continuing. My remaining time is %d.\n", (int)remainingTime);
+   // printf("\nI am continuing. My remaining time is %d.\n", (int)remainingTime);
 }

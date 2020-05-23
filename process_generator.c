@@ -90,7 +90,7 @@ bool readFromFile(processQueue *queue)
         {
             processData *pData = (processData *)malloc(sizeof(processData));
             // TODO: free this memory in termination.
-            sscanf(buffer, "%d%d%d%d", &pData->id, &pData->arrivaltime, &pData->runningtime, &pData->priority);
+            sscanf(buffer, "%d%d%d%d%d", &pData->id, &pData->arrivaltime, &pData->runningtime, &pData->priority, &pData->memory);
             enqueue(queue, pData);
         }
     }
