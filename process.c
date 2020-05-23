@@ -22,12 +22,17 @@ int main(int agrc, char *argv[])
     clock_t startTime, currentTime;
     currentTime = 0;
     remainingTime = (clock_t)atoi(argv[1]);
+    
+    int S= clock()/CLOCKS_PER_SEC;
+    
     while (remainingTime > currentTime)
     {
         startTime = clock();
         currentTime = (double)(startTime / CLOCKS_PER_SEC);
     }
 
+    int f = clock()/CLOCKS_PER_SEC;
+    printf("\n start= %d finish = %d runtime was %d \n", S, f, (u_int16_t)remainingTime);
     destroyClk(false);
     // zero means termintated successfully.
     return 0;

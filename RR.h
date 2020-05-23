@@ -53,10 +53,11 @@ void type_1_process(PCB* processToRun){
 		//waiting for it to finish
 		int STATUS;
 		waitpid(pid_process, &STATUS, 0);
+		
 
 		//store finish info
-		processToRun->status = FINISHED;
 		processToRun->finishTime = getClk();
+		processToRun->status = FINISHED;
 		processToRun->TA = processToRun->finishTime - processToRun->processStruct.arrivaltime;
 		processToRun->remainingTime = 0;
 		processToRun->totalwaitTime= processToRun->TA - processToRun->processStruct.runningtime;
@@ -83,8 +84,8 @@ void type_2_process(PCB* processToRun){
 	waitpid(pid_process, &STATUS,0);
 	
 	//store finish info
-	processToRun->status = FINISHED;
 	processToRun->finishTime = getClk();
+	processToRun->status = FINISHED;
 	processToRun->TA = processToRun->finishTime - processToRun->processStruct.arrivaltime;
 	processToRun->remainingTime = 0;
 	processToRun->totalwaitTime= processToRun->TA - processToRun->processStruct.runningtime;
@@ -234,13 +235,14 @@ void RR ( int quantum) {
 		
 		
 		recValue= recvMessage(&process);
-		
+	
 		
 		
 	}
 	printPerf();
     close_oputputFile();
     printf("\n************* EOS *************\n");
+	
 
 }
 

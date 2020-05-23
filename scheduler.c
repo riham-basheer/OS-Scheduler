@@ -6,10 +6,9 @@
 
 int main(int argc, char *argv[])
 {
-	// Initiate connection with clock and messagebox
-	initClk();
+	//Initiate connection with clock and messagebox
 	connectToMessageBox();
-
+	initClk();
 	// Choosing Algorithm
 	int algoNum = (int)atoi(argv[1]);
 	int quantum;

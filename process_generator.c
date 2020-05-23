@@ -40,9 +40,11 @@ int main(int argc, char *argv[])
     char numAlgo_string[64], quantum_string[64];
     sprintf(numAlgo_string, "%d", numAlgo);
     sprintf(quantum_string, "%d", quantum);
+
+    //Asmaa: trying to 
+    
     int pid_schd = createScheduler(numAlgo_string, quantum_string);
     int pid_clk = createClock();
-
     // 4. Use this function after creating the clock process to initialize clock
     initClk();
     /*Now, we'll send each process at its arrival time to the scheduler
