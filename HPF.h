@@ -50,6 +50,7 @@ void HPF()
 	memTree* mem = new_memTree();
 	node* root;
 	root = mem->root;
+    bool allocation_success;
 
     open_outputFile();
     priorityQueue *queue = new_PrioriyQueue();
@@ -69,10 +70,11 @@ void HPF()
             if (recValue == 1)
                 noMoreProcesses = true;
         }
+        
         if (priority_dequeue(queue, &processToRun))
         {   
             //allocate process in memory
-            Allocate_memory(root, processToRun.processStruct.memory ,processToRun.processStruct.id);
+            allocation_success=Allocate_memory(root, processToRun.processStruct.memory ,processToRun.processStruct.id);
 
             // Creating process process
             int pid_process = create_process(processToRun.remainingTime);
@@ -81,14 +83,18 @@ void HPF()
             processToRun.startTime = getClk();
             processToRun.wait_at_start= processToRun.startTime-processToRun.processStruct.arrivaltime;
             processToRun.totalwaitTime= processToRun.wait_at_start;
+
             printThis(&processToRun);
+
             int STATUS;
             waitpid(pid_process, &STATUS, 0);
             processToRun.status = FINISHED;
             processToRun.finishTime= getClk();
             processToRun.TA = getClk() - processToRun.processStruct.arrivaltime;
             processToRun.remainingTime = 0;
+
             printThis(&processToRun);
+
             deallocate_process(root, processToRun.processStruct.id);
         }
         recValue = recvMessage(&process);

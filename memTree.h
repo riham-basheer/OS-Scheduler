@@ -175,41 +175,82 @@ node* free_leaf(node* root, int p_id) {
 }
 
 
+int get_height(node* root) {
+ 
+ if (root == NULL) return -1;
+
+ int height_left = 0, height_right = NULL;
+ node* p = root;
+
+ while (p->left != NULL)
+ {
+  height_left++;
+  p = p->left;
+
+ }
+ while (p->right != NULL) {
+  height_right++;
+  p = p->right;
+ }
+ if (height_left > height_right) { return height_left; }
+ else { return height_right;  }
+}
 void re_merge(node* root) {
-	if (root == NULL) return;
+ if (root == NULL) return;
+
+ bool leaf = root->left == NULL && root->right == NULL;
+
+ if ( leaf && root->color != RED) return ;
+
+ if (leaf && root->color == RED) { root->color = WHITE; return; }
 
 
-	bool leaf = root->left == NULL && root->right == NULL;
-	if ( leaf && root->color != RED) return;
+ if (root->left == NULL && root->right->color == WHITE) {
+  free(root->right);
+  root->right = NULL;
+  root->color = WHITE;
+  return;
+ }
 
-	if (leaf && root->color == RED) { root->color = WHITE; return; }
+ if (root->right == NULL && root->left->color == WHITE) {
+  free(root->left);
+  root->left = NULL;
+  root->color = WHITE;
+  return;
+ }
+ 
+ if ((root->right != NULL && root->left != NULL)) {
+  bool both_white = (root->right->color == WHITE) && (root->left->color == WHITE);
+  bool have_no_kids = (root->left->left == NULL && root->left->right == NULL) && (root->right->left == NULL && root->right->right == NULL);
 
+  if (both_white && have_no_kids) {
+   free(root->left);
+   free(root->right);
+   root->left = NULL;
+   root->right = NULL;
+   root->color = WHITE;
 
-
-	if (root->left == NULL && root->right->color == WHITE) {
-		free(root->right);
-		root->right = NULL;
-		root->color = WHITE;
-		return;
-	}
-
-	if (root->right == NULL && root->left->color == WHITE) {
-		free(root->left);
-		root->left = NULL;
-		root->color = WHITE;
-		return;
-	}
-
-	re_merge(root->left);
-	re_merge(root->right);
-	
+  }
+ }
+ re_merge(root->left);
+ re_merge(root->right);
+ 
+}
+void re_merge_all(node* root) {
+ if (root == NULL) { return; }
+ if (root->left == NULL && root->right == NULL) { return; }
+ int i;
+ int h = get_height(root);
+ if (h != 0) {
+  for (i = 0; i < h+1; i++) {
+   re_merge(root);
+  }
+ }
 }
 
-
-
 void deallocate_process(node* root, int p_id) {
-	free_leaf( root, p_id);
-	re_merge(root);
+ free_leaf( root, p_id);
+ re_merge_all(root);
 }
 
 

@@ -29,13 +29,12 @@ int get_process_situation(PCB process, int quantum){
 
 }
 
-void type_1_process(PCB* processToRun,node* root){
+void type_1_process(PCB* processToRun, node* root){
 		/* handling a process whose entire runtime =< quantum, 
 		just fork, exec and wait for it to finish 
 		*/
 		
-		//allocate memory
-		Allocate_memory(root, processToRun->processStruct.memory, processToRun->processStruct.id);
+		
 		//execute process
 		int pid_process = create_process(processToRun->remainingTime);
 
@@ -152,12 +151,13 @@ void RR ( int quantum) {
 	node* root;
 	root = mem->root;
 
-	//setting up message connection and output file
+	//setting up message connection and scheduler output files
 	open_outputFile();
 	connectToMessageBox();
 
 	//variables
 	processData process;
+	bool allocation_success;
 	PCBqueue *queue= new_PCBqueue(); // ready queue
 	PCB currProcess, processToRun;
 	int process_situation;
@@ -173,7 +173,7 @@ void RR ( int quantum) {
 		//following while: to listen for any more incoming processes and enqueue them
 		while (recValue == 0)
 		{ 
-			printf("\nReceived a process now. It's # %d\n", process.id);
+			printf("\nReceived a process now. It's # %d\n time now= %d", process.id, getClk());
 			currProcess = create_PCB(&process);
 			
 			currProcess.nquanta_taken =0;
@@ -188,7 +188,7 @@ void RR ( int quantum) {
    
 
 		//following while: to enqueue processes from the ready queue and handle them
-		while (!PCB_isEmpty(queue->head))
+		if (!PCB_isEmpty(queue->head))
 		{	
 			
 			PCB_dequeue(queue, &processToRun);
@@ -197,22 +197,34 @@ void RR ( int quantum) {
 			int process_situation= get_process_situation(processToRun, quantum);
 			
 			//deb
-			printf("\nprocess # %d in sitution= %d\n",processToRun.processStruct.id,process_situation);
+			printf("\nprocess # %d in sitution= %d, it's remaining time = %d it has taken %d quanta so far\n",processToRun.processStruct.id,process_situation, processToRun.remainingTime, processToRun.nquanta_taken);
 			//deb
 			
-			if (process_situation==1){ type_1_process(&processToRun,root);}
+			if (process_situation==1){ 
+				//allocate memory
+				allocation_success= Allocate_memory(root, processToRun.processStruct.memory, processToRun.processStruct.id);
+				if(allocation_success)
+				{
+						type_1_process(&processToRun,root);
+				}
+				else{
+					printf("\n there're not enough memory for process # %d now so I'll wait till %d bytes of memory is freed\n", processToRun.processStruct.id, processToRun.processStruct.memory);
+					PCB_enqueue(queue, &processToRun); // re-enque without executing
+				}
+			}
 
 			else if (process_situation==2){type_2_process(&processToRun,root);}
 
 			else if (process_situation==3){
+				//allocate memory
+				allocation_success= Allocate_memory(root, processToRun.processStruct.memory,processToRun.processStruct.id);
+
+				if (allocation_success){
 				//store start data
 				processToRun.startTime = getClk();
 				processToRun.wait_at_start= processToRun.startTime-processToRun.processStruct.arrivaltime;
 				processToRun.status = STARTED; //set status
 				
-				//allocate memory
-				Allocate_memory(root, processToRun.processStruct.memory,processToRun.processStruct.id);
-
 				// give quantum
 				int pid_process = give_quantum_first_time(quantum, processToRun.remainingTime);
 				
@@ -231,7 +243,13 @@ void RR ( int quantum) {
 				processToRun.nquanta_taken++ ;
 
 				//re-enqueue
-				PCB_enqueue(queue, &processToRun); 
+				PCB_enqueue(queue, &processToRun); }
+				
+				else{
+					printf("\n there're not enough memory for process # %d now so I'll wait till %d bytes of memory is freed\n", processToRun.processStruct.id, processToRun.processStruct.memory);
+					PCB_enqueue(queue, &processToRun); // re-enque without executing
+				}
+
 			
 			
 			}
@@ -247,7 +265,18 @@ void RR ( int quantum) {
 				PCB_enqueue(queue, &processToRun); 
 			}
 
-		
+     		/*
+			recValue= recvMessage(&process);
+			if (recValue==0){
+				printf("\nReceived a process now. It's # %d\n", process.id);
+			currProcess = create_PCB(&process);
+			
+			currProcess.nquanta_taken =0;
+			currProcess.remainingTime = currProcess.processStruct.runningtime; 
+			
+			PCB_enqueue(queue, &currProcess);
+			
+			}*/
 			
 		}
 		
