@@ -161,6 +161,7 @@ void RR ( int quantum) {
 	PCBqueue *queue= new_PCBqueue(); // ready queue
 	PCB currProcess, processToRun;
 	int process_situation;
+	int start_scheduling, finish_scheduling, time_total=0;
 
 	//listen for the first message (first process to handle)
 	int recValue = recvMessage(&process);
@@ -190,7 +191,7 @@ void RR ( int quantum) {
 		//following while: to enqueue processes from the ready queue and handle them
 		if (!PCB_isEmpty(queue->head))
 		{	
-			
+			start_scheduling= getClk();
 			PCB_dequeue(queue, &processToRun);
 			
 			printf("\ndequeue id= %d\n",processToRun.processStruct.id);
@@ -277,7 +278,8 @@ void RR ( int quantum) {
 			PCB_enqueue(queue, &currProcess);
 			
 			}*/
-			
+			finish_scheduling= getClk();
+			time_total += (finish_scheduling-start_scheduling);
 		}
 		
 		
@@ -286,7 +288,7 @@ void RR ( int quantum) {
 		
 		
 	}
-	printPerf();
+	printPerf(time_total);
     close_oputputFile();
 	close_memlog_file();
 	clean_mem(root); // clean up the memory tree

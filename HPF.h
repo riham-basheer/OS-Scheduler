@@ -58,6 +58,7 @@ void HPF()
     PCB currProcess, processToRun;
     int recValue = recvMessage(&process);
     bool noMoreProcesses = (recValue == 1);
+    int start_scheduling, finish_scheduling, time_total=0;
 
     while (!priority_isEmpty(queue->head) || !noMoreProcesses) // As long as there's processes waiting or being processed
     {
@@ -70,9 +71,10 @@ void HPF()
             if (recValue == 1)
                 noMoreProcesses = true;
         }
-        
+
         if (priority_dequeue(queue, &processToRun))
         {   
+            start_scheduling= clock()/CLOCKS_PER_SEC;
             //allocate process in memory
             allocation_success=Allocate_memory(root, processToRun.processStruct.memory ,processToRun.processStruct.id);
 
@@ -96,10 +98,13 @@ void HPF()
             printThis(&processToRun);
 
             deallocate_process(root, processToRun.processStruct.id);
+
+            finish_scheduling= clock()/CLOCKS_PER_SEC;
+            time_total += (finish_scheduling-start_scheduling);
         }
         recValue = recvMessage(&process);
     }
-    printPerf();
+    printPerf(time_total);
     close_oputputFile();
     close_memlog_file();
 	clean_mem(root); // clean up the memory tree
